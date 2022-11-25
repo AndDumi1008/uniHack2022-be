@@ -1,13 +1,15 @@
 package com.unihack.unihackbe.controller;
 
-import com.unihack.unihackbe.entity.dto.AvatarDto;
+import com.unihack.unihackbe.entity.dto.AvatarDetails;
+import com.unihack.unihackbe.entity.dto.AvatarSummary;
 import com.unihack.unihackbe.service.AvatarService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -22,19 +24,25 @@ public class Controller {
         this.avatarService = avatarService;
     }
 
-
-    @GetMapping("/getAvatars")
-    public List<String> getListOfAvatars() {
-        System.out.println(avatarService.getAvatars());
-        return avatarService.getAvatars();
+    @GetMapping("/avatars")
+    public List<AvatarSummary> getAllAvatars() {
+        return avatarService.findAll();
     }
 
-    @RequestMapping
-    public String test() {
-        return "Project is up and running";
+    @GetMapping("/{id}")
+    public AvatarDetails getAvatarById(@Parameter(description = "id of the avatar to be founded", required = true) @Valid @PathVariable String id) {
+        return avatarService.getAvatarById(id);
     }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public AvatarDetails updateAvatar(@Valid @RequestBody AvatarDetails avatarDetails, @Valid @RequestBody LocalDate birthdate, @Parameter(description = "id of the avatar to be founded", required = true) @PathVariable String id) {
+        return avatarService.update(avatarDetails, id, birthdate);
+    }
 
-
-
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAvatarById(@Parameter(description = "id of the avatar to be founded", required = true) @PathVariable String id) {
+        avatarService.deleteById(id);
+    }
 }

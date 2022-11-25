@@ -1,12 +1,17 @@
 package com.unihack.unihackbe.utils;
 
-import com.unihack.unihackbe.entity.Avatar;
-import com.unihack.unihackbe.entity.dto.AvatarDto;
+import com.unihack.unihackbe.entity.AvatarEntity;
+import com.unihack.unihackbe.entity.dto.AvatarDetails;
+import com.unihack.unihackbe.entity.dto.AvatarSummary;
 import org.bson.types.ObjectId;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.List;
 
 @Mapper(componentModel = "spring", injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public abstract class GeneralMapper {
@@ -44,16 +49,25 @@ public abstract class GeneralMapper {
         return Float.parseFloat(number);
     }
 
+    @Named("computeAgeToString")
+    public String computeAgeToString(LocalDate birthday) {
+        Period age = Period.ofYears(Period.between(birthday, LocalDate.now()).getYears());
+        return String.valueOf(age.getYears());
+    }
+
 
     /*Mapper functions for Avatar.class */
     @Mapping(source = "id", target = "id", qualifiedByName = "objectIdToString")
-    @Mapping(source = "age", target = "age", qualifiedByName = "floatToString")
-    @Mapping(source = "popularity", target = "popularity", qualifiedByName = "floatToString")
-    public abstract AvatarDto entityToDto(Avatar avatarEntity);
+    public abstract AvatarSummary entityToSummary(AvatarEntity entity);
+
+    @Mapping(source = "id", target = "id", qualifiedByName = "objectIdToString")
+    @Mapping(source = "birthDate", target = "age", qualifiedByName = "computeAgeToString")
+    public abstract AvatarDetails entityToDetails(AvatarEntity entity);
 
     @Mapping(source = "id", target = "id", qualifiedByName = "stringToObjectId")
-    @Mapping(source = "age", target = "age", qualifiedByName = "stringToFloat")
-    @Mapping(source = "popularity", target = "popularity", qualifiedByName = "stringToFloat")
-    public abstract Avatar dtoToEntity(AvatarDto avatarDto);
+    public abstract AvatarEntity detailsToEntity(AvatarDetails avatarDetails);
+
+    public abstract List<AvatarSummary> avatarEntityListToAvatarSummaryList(List<AvatarEntity> avatarEntityList);
+
 
 }
